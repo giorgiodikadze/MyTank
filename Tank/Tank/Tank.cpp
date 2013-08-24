@@ -75,7 +75,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hInstance		= hInstance;
 	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TANK));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
 	wcex.lpszMenuName	= NULL;
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -117,22 +117,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
-	//获得窗口DC
-	hDC=GetDC(hWnd);
-	//创建缓冲DC
-	cacheDC=CreateCompatibleDC(hDC);
-	//创建背景DC
-	backgroundDC=CreateCompatibleDC(hDC);
-
-	backgroundImage.Load(_T(".\\res\\image\\background.bmp"));
-
-
-
-	//TODO： win32下双缓冲实现
-
-
-
-
    return TRUE;
 }
 
@@ -150,10 +134,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
-	HDC hdc;
 
 	switch (message)
 	{
+	//窗口是否激活
+	case WM_ACTIVATE://测试时不断循环是因为用的对话框测试，对话框能让窗口失去焦点，对话框消失后窗口又会收到WM_ACTIVATE
+		if(wParam!=WA_INACTIVE)
+			SetTimer(hWnd,TIMER_ID,TIMER_INTERVAL,TimerProc);
+		else
+			KillTimer(hWnd,TIMER_ID);
+		break;
+	//窗口最小化和还原
+	case WM_SIZE:
+		if(wParam==SIZE_RESTORED)
+			SetTimer(hWnd,TIMER_ID,TIMER_INTERVAL,TimerProc);
+		else if(wParam==SIZE_MINIMIZED)
+			KillTimer(hWnd,TIMER_ID);
+		break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
@@ -171,12 +168,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_PAINT:
-
-		//hdc = BeginPaint(hWnd, &ps);
-		// TODO: 在此添加任意绘图代码...
-		//EndPaint(hWnd, &ps);
+		hdc = BeginPaint(hWnd, &ps);
+		GetClientRect(hWnd,&clientRect);
+		Paint(hdc);
+		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
+		KillTimer(hWnd,TIMER_ID);
+		lastClean();
 		PostQuitMessage(0);
 		break;
 	default:
@@ -203,4 +202,81 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
+void Paint(HDC hdc)
+{
+	HDC screen = GetDC(NULL);
+	HDC cachehDC = CreateCompatibleDC(screen);
+	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	SelectObject(cachehDC,hBitmap);
+	CImage backgroundImage;//必须放这里，load的时候CImage对象必须是null
+	backgroundImage.Load(_T(".\\res\\image\\background.bmp"));
+	backgroundImage.Draw(cachehDC,0,0,clientRect.Width(),clientRect.Height());
+	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
+	{
+		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
+		{
+			if(map[x][y] != NULL)
+				{
+					map[x][y]->Draw(cachehDC);
+				}
+		}
+	}
+	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
+	DeleteObject(hBitmap);
+	DeleteDC(cachehDC);
+	ReleaseDC(NULL, screen);
+}
+
+void InitializeMap(short level)
+{
+	TCHAR mapName[25];
+	wsprintf(mapName,_T(".\\res\\map\\L%d.map"),level);
+	ifstream in;
+	in.open(mapName);
+	for(short y=0, type=0;y<GAME_WINDOW_BLOCK;y++)//根据坐标，y应在循环外层
+	{
+		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
+		{
+			in>>type;
+			//TCHAR TEMP[3];
+			//wsprintf(TEMP,_T("%d"),type);
+			//MessageBox(NULL,TEMP,_T(""),MB_OK);
+			if(type != 0)
+			{
+				map[x][y] = new MapBlock(x,y,type);
+			}
+			else map[x][y] = NULL;
+			
+		}
+	}
+	in.close();
+}
+
+void lastClean()
+{
+	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
+	{
+		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
+		{
+			delete map[x][y];
+		}
+	}
+}
+
+void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
+{
+	switch (game_state)
+	{
+	case GS_WAITING:
+		InitializeMap(++game_level);
+		game_state = GS_RUNNING;
+		RedrawWindow(hwnd,NULL,NULL,RDW_INVALIDATE);
+		break;
+	case GS_RUNNING:
+		
+	default:
+		break;
+	}
 }

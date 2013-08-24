@@ -19,4 +19,4 @@
 
 
 // TODO: 在此处引用程序需要的其他头文件
-#include <atlimage.h> //CImage类需要，不用就删除
+#include <atlimage.h>
