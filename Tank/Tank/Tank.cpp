@@ -25,7 +25,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: 在此放置代码。
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -102,7 +101,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //获取屏幕宽和高
 	int device_width = GetSystemMetrics(SM_CXSCREEN);
 	int	device_height =	GetSystemMetrics(SM_CYSCREEN);
-	int window_width = GAME_BLOCK_WIDTH * GAME_WINDOW_BLOCK+6;
+	int window_width = GAME_BLOCK_WIDTH * GAME_WINDOW_BLOCK+16;
 	int window_height = window_width + 22;
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
@@ -134,13 +133,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
+	HDC hdc;
+
+	hWindow = hWnd;
 
 	switch (message)
 	{
 	//窗口是否激活
 	case WM_ACTIVATE://测试时不断循环是因为用的对话框测试，对话框能让窗口失去焦点，对话框消失后窗口又会收到WM_ACTIVATE
 		if(wParam!=WA_INACTIVE)
+		{
 			SetTimer(hWnd,TIMER_ID,TIMER_INTERVAL,TimerProc);
+		}
 		else
 			KillTimer(hWnd,TIMER_ID);
 		break;
@@ -169,8 +173,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		GetClientRect(hWnd,&clientRect);
-		Paint(hdc);
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
@@ -204,35 +206,72 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
-void Paint(HDC hdc)
+void lastClean()
 {
-	HDC screen = GetDC(NULL);
-	HDC cachehDC = CreateCompatibleDC(screen);
-	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
-	SelectObject(cachehDC,hBitmap);
-	CImage backgroundImage;//必须放这里，load的时候CImage对象必须是null
-	backgroundImage.Load(_T(".\\res\\image\\background.bmp"));
-	backgroundImage.Draw(cachehDC,0,0,clientRect.Width(),clientRect.Height());
 	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
 	{
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
-			if(map[x][y] != NULL)
-				{
-					map[x][y]->Draw(cachehDC);
-				}
+			delete map[x][y];
 		}
 	}
-	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
-	DeleteObject(hBitmap);
-	DeleteDC(cachehDC);
-	ReleaseDC(NULL, screen);
 }
 
+void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
+{
+	switch (game_state)
+	{
+	case GS_BEGIN:
+		InitializeProgram();
+		game_state = GS_LOADING;
+		break;
+	case GS_LOADING:
+		InitializeMap(++game_level);
+		if(game_level == GAME_LEVEL_ALL) game_level = 0;
+		DrawGame();
+		game_state = GS_RUNNING;
+		break;
+	case GS_RUNNING:
+
+		if(player_death==false) Keydown();
+
+		DrawGame();
+		
+		//玩家死亡
+		if(player_death==true)
+		{
+			if(--player_life>=0)
+			{
+				//玩家复活
+				player_death=false;
+				//player_tank=GTank(8,8,11,UP);
+			}
+			else game_state = GS_GAMEOVER;
+		}
+		break;
+	case GS_GAMEOVER:
+		game_state = GS_BEGIN;
+		break;
+	default:
+		break;
+	}
+}
+
+//初始化程序，在程序刚开始或者从头再来
+void InitializeProgram()
+{
+	GetClientRect(hWindow,&clientRect);
+	player_death = true;
+	player_life = 3;
+	game_level = 0;
+	game_state = GS_LOADING;
+}
+
+//加载某一关地图
 void InitializeMap(short level)
 {
 	TCHAR mapName[30];
-	wsprintf(mapName,_T(".\\res\\map\\L%d.map"),level);
+	wsprintf(mapName,_T(".\\res\\map\\L%d.map"), level);
 	ifstream in;
 	in.open(mapName);
 	for(short y=0, type=0;y<GAME_WINDOW_BLOCK;y++)//根据坐标，y应在循环外层
@@ -254,30 +293,76 @@ void InitializeMap(short level)
 	in.close();
 }
 
-void lastClean()
+void DrawGame()
+{
+	screen = GetDC(NULL);
+	cachehDC = CreateCompatibleDC(screen);
+
+	DrawBackground();
+	DrawMap();
+
+	if(player_death==false)
+	{
+		player_tank.Draw(cachehDC);
+	}
+
+	Print();
+
+	DeleteDC(cachehDC);
+	ReleaseDC(NULL, screen);
+}
+
+void DrawBackground()
+{
+	CImage backgroundImage;
+	backgroundImage.Load(_T(".\\res\\image\\background.bmp"));
+	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	SelectObject(cachehDC,hBitmap);
+	backgroundImage.Draw(cachehDC,0,0,clientRect.Width(),clientRect.Height());
+	DeleteObject(hBitmap);
+}
+
+void DrawMap()
 {
 	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
 	{
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
-			delete map[x][y];
+			if(map[x][y] != NULL)
+			{
+				map[x][y]->Draw(cachehDC);
+			}
 		}
 	}
 }
 
-void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
+void Print()
 {
-	switch (game_state)
+	HDC hdc = GetDC(hWindow);
+	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
+	ReleaseDC(hWindow,hdc);
+}
+
+void Keydown()
+{
+	if(KEYDOWN(VK_ESCAPE))
 	{
-	case GS_WAITING:
-		InitializeMap(++game_level);
-		if(game_level == GAME_LEVEL_ALL) game_level = 0;
-		game_state = GS_RUNNING;
-		RedrawWindow(hwnd,NULL,NULL,RDW_INVALIDATE);
-		break;
-	case GS_RUNNING:
-		
-	default:
-		break;
+		SendMessage(hWindow,WM_DESTROY,NULL,NULL);
+	}
+	if(KEYDOWN(VK_DOWN))
+	{
+		player_tank.Move(DOWN);
+	}
+	else if(KEYDOWN(VK_LEFT))
+	{
+		player_tank.Move(LEFT);
+	}
+	else if(KEYDOWN(VK_UP))
+	{
+		player_tank.Move(UP);
+	}
+	else if(KEYDOWN(VK_RIGHT))
+	{
+		player_tank.Move(RIGHT);
 	}
 }

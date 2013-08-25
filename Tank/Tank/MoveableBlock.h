@@ -4,7 +4,7 @@ class MoveableBlock :
 	public Block
 {
 public:
-	MoveableBlock(int real_x, int real_y, short _type, short speed=5, short _direction=UP);
+	MoveableBlock(short _x, short _y, short _type, short speed=2, short _direction=UP);
 	~MoveableBlock(void);
 
 	virtual void UpdataDataFromX(int _real_x);

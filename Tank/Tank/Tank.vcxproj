@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClInclude Include="Block.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="GTank.h" />
     <ClInclude Include="MapBlock.h" />
     <ClInclude Include="MoveableBlock.h" />
     <ClInclude Include="Resource.h" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="GTank.cpp" />
     <ClCompile Include="MapBlock.cpp" />
     <ClCompile Include="MoveableBlock.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -2,8 +2,10 @@
 #include "Bullet.h"
 
 Bullet::Bullet(int _real_x, int _real_y, short _direction,  short _speed, short _type)
-	:MoveableBlock(_real_x, _real_y, _type, _speed, _direction)
+	:MoveableBlock(_real_x/BLOCK_WIDTH, _real_y/BLOCK_WIDTH, _type, _speed, _direction)
 {
+	real_x = _real_x;//放这里定义以免和Block里的数据冲突
+	real_y = _real_y;
 	blockImage.Load(_T(".\\res\\image\\bullet.png"));
 	TransparentPNG(&blockImage);
 	right = left + blockImage.GetWidth()/4;
@@ -15,9 +17,8 @@ Bullet::~Bullet(void)
 {
 }
 
-void Bullet::Move(short _direction)
+void Bullet::Move()
 {
-	direction = _direction;
 	switch (direction)
 	{
 	case DOWN:

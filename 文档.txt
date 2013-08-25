@@ -1,7 +1,7 @@
 地图块
 M0 - 无——此时MB数组不会引用MB对象
 M1.png - 森林
-M2.png - 河流
+M2.png - 河流==每绘制一次frame++可以有动画效果
 M3.png - 砖头
 M4.png - 钢铁
 M5.png - 守护

@@ -20,3 +20,5 @@
 
 // TODO: 在此处引用程序需要的其他头文件
 #include <atlimage.h>
+
+const int GAME_WINDOW_BLOCK = 15;

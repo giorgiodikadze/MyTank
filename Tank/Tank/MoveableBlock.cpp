@@ -2,8 +2,8 @@
 #include "MoveableBlock.h"
 
 
-MoveableBlock::MoveableBlock(int _real_x, int _real_y, short _type, short _speed, short _direction)
-	:Block(_real_x/40, _real_y/40, _type),speed(_speed),direction(_direction)
+MoveableBlock::MoveableBlock(short _x, short _y, short _type, short _speed, short _direction)
+	:Block(_x, _y, _type),speed(_speed),direction(_direction)
 {
 }
 
