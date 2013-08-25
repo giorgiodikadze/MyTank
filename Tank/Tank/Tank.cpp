@@ -231,7 +231,7 @@ void Paint(HDC hdc)
 
 void InitializeMap(short level)
 {
-	TCHAR mapName[25];
+	TCHAR mapName[30];
 	wsprintf(mapName,_T(".\\res\\map\\L%d.map"),level);
 	ifstream in;
 	in.open(mapName);
@@ -271,6 +271,7 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 	{
 	case GS_WAITING:
 		InitializeMap(++game_level);
+		if(game_level == GAME_LEVEL_ALL) game_level = 0;
 		game_state = GS_RUNNING;
 		RedrawWindow(hwnd,NULL,NULL,RDW_INVALIDATE);
 		break;

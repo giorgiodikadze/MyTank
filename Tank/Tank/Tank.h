@@ -8,8 +8,11 @@ using namespace std;
 #define TIMER_ID 1
 #define TIMER_INTERVAL 10
 
+const short DOWN=0, LEFT=1, UP=2, RIGHT=3;
+
 HDC hdc;
 
+const int GAME_LEVEL_ALL = 3;
 const int GAME_WINDOW_BLOCK = 15;
 const int GAME_BLOCK_WIDTH = 40;
 
