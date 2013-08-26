@@ -301,13 +301,11 @@ void DrawGame()
 	DrawBackground();
 	DrawMapExceptTree();
 
-	DrawAndDealBullet();
+	player_tank.DrawAndDealBullet(cachehDC);
 	if(player_death==false)
 	{
 		player_tank.Draw(cachehDC);
 	}
-
-
 
 	DrawMapTree();
 
@@ -376,29 +374,7 @@ void Keydown()
 	}
 	if(KEYDOWN(VK_SPACE))
 	{
-		if(player_tank.bullet_real_num < player_tank.BULLET_NUM)
-		{
-			int bullet_x=player_tank.real_x+(GAME_BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
-			int bullet_y=player_tank.real_y+(GAME_BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
-			switch(player_tank.direction)
-			{
-				case DOWN:
-					bullet_y+=GAME_BLOCK_WIDTH/2;
-					break;
-				case LEFT:
-					bullet_x-=GAME_BLOCK_WIDTH/2;
-					break;
-				case UP:
-					bullet_y-=GAME_BLOCK_WIDTH/2;
-					break;
-				case RIGHT:
-					bullet_x+=GAME_BLOCK_WIDTH/2;
-
-			}
-			player_bullet.push_back(new Bullet(bullet_x, bullet_y,player_tank.direction));
-			player_tank.bullet_real_num++;
-			//MessageBox(NULL,_T(""),_T(""),MB_OK);
-		}
+		player_tank.Fire();
 	}
 
 	if(KEYDOWN(VK_DOWN))
@@ -419,20 +395,3 @@ void Keydown()
 	}
 }
 
-void DrawAndDealBullet()
-{
-	for(list<Bullet*>::iterator iter_bullet=player_bullet.begin(); iter_bullet!=player_bullet.end(); )
-	{
-		Bullet& bullet=**iter_bullet;
-		if(bullet.hitAll() != true)
-		{
-			bullet.Move();
-			(*(iter_bullet++))->Draw(cachehDC);
-		}
-		else
-		{
-			iter_bullet=player_bullet.erase(iter_bullet);
-			player_tank.bullet_real_num--;
-		}
-	}
-}

@@ -21,6 +21,8 @@ GTank::GTank(short _x, short _y, short _type, short _direction, short _speed)
 
 GTank::~GTank(void)
 {
+	for(list<Bullet*>::iterator i=player_bullet.begin();i!=player_bullet.end();++i)
+		delete *i;
 }
 
 void GTank::Draw(HDC &hdc)
@@ -53,6 +55,33 @@ void GTank::Move(short _direction)
 	default:
 		break;
 	}
+}
+
+void GTank::Fire()
+{
+	if(bullet_real_num < BULLET_NUM)
+		{
+			int bullet_x=real_x+(BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
+			int bullet_y=real_y+(BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
+			switch(direction)
+			{
+				case DOWN:
+					bullet_y+=BLOCK_WIDTH/2;
+					break;
+				case LEFT:
+					bullet_x-=BLOCK_WIDTH/2;
+					break;
+				case UP:
+					bullet_y-=BLOCK_WIDTH/2;
+					break;
+				case RIGHT:
+					bullet_x+=BLOCK_WIDTH/2;
+
+			}
+			player_bullet.push_back(new Bullet(bullet_x, bullet_y,direction));
+			bullet_real_num++;
+			//MessageBox(NULL,_T(""),_T(""),MB_OK);
+		}
 }
 
 bool GTank::willHitMap()
@@ -106,4 +135,23 @@ bool GTank::willHitMap()
 				&& ((map[des_x2][des_y2] == NULL) || (map[des_x2][des_y2]->type == 1))) 
 				return false;
 	return true;
+}
+
+void GTank::DrawAndDealBullet(HDC &hDC)
+{
+	for(list<Bullet*>::iterator iter_bullet=player_bullet.begin(); iter_bullet!=player_bullet.end(); )
+	{
+		Bullet& bullet=**iter_bullet;
+		if(bullet.hitAll() != true)
+		{
+			bullet.Move();
+			(*(iter_bullet++))->Draw(hDC);
+		}
+		else
+		{
+			delete *iter_bullet;
+			iter_bullet=player_bullet.erase(iter_bullet);
+			bullet_real_num--;
+		}
+	}
 }

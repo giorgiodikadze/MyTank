@@ -4,8 +4,6 @@
 #include <fstream>
 #include "MapBlock.h"
 #include "GTank.h"
-#include <list>
-#include "Bullet.h"
 
 using namespace std;
 
@@ -39,9 +37,7 @@ int game_level;
 HDC screen = GetDC(NULL);
 HDC cachehDC = CreateCompatibleDC(screen);
 HWND hWindow;
-list<Bullet*> player_bullet; //玩家子弹
 list<GTank*> enemy_tank; //敌人坦克
-list<list<Bullet*>*> enemy_bullet;//敌人炮弹容器
 
 int enemy_num;
 const int ENEMY_MAX_NOW=4;
@@ -65,4 +61,3 @@ void DrawMapExceptTree();
 void DrawMapTree();
 void Print();
 void Keydown();
-void DrawAndDealBullet();
