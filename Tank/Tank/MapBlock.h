@@ -8,6 +8,7 @@ public:
 	~MapBlock(void);
 
 	void Draw(HDC &hdc);
+	void Explode();
 
 	short state, AllState;
 };

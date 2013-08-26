@@ -5,6 +5,7 @@
 GTank::GTank(short _x, short _y, short _type, short _direction, short _speed)
 	:MoveableBlock(_x, _y, _type, _speed, _direction),frame(0)
 {
+	bullet_real_num = 0;
 	real_x = BLOCK_WIDTH * x+4;
 	real_y = BLOCK_WIDTH * y+4;
 	top = _y * BLOCK_WIDTH+4;

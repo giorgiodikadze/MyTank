@@ -14,5 +14,7 @@ public:
 	bool willHitMap();
 	short frame;
 	static const int TANK_BLOCK_WIDTH = 32;
+	static const int BULLET_NUM = 1;
+	short bullet_real_num;
 };
 

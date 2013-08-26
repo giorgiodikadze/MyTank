@@ -4,6 +4,9 @@
 #include <fstream>
 #include "MapBlock.h"
 #include "GTank.h"
+#include <list>
+#include "Bullet.h"
+
 using namespace std;
 
 #define TIMER_ID 1
@@ -36,8 +39,15 @@ int game_level;
 HDC screen = GetDC(NULL);
 HDC cachehDC = CreateCompatibleDC(screen);
 HWND hWindow;
+list<Bullet*> player_bullet; //Íæ¼Ò×Óµ¯
+list<GTank*> enemy_tank; //µÐÈËÌ¹¿Ë
+list<list<Bullet*>*> enemy_bullet;//µÐÈËÅÚµ¯ÈÝÆ÷
 
-GTank player_tank(4,1,11,UP,2);
+int enemy_num;
+const int ENEMY_MAX_NOW=4;
+const int ENEMY_MAX =20;
+
+GTank player_tank(6,6,11,UP,2);
 
 CRect clientRect;
 
@@ -51,6 +61,8 @@ void InitializeProgram();
 void InitializeMap(short level);
 void DrawGame();
 void DrawBackground();
-void DrawMap();
+void DrawMapExceptTree();
+void DrawMapTree();
 void Print();
 void Keydown();
+void DrawAndDealBullet();

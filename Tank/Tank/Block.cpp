@@ -30,3 +30,5 @@ void Block::TransparentPNG(CImage *png)
 		}
 	}
 }
+void Block::Explode()
+{}

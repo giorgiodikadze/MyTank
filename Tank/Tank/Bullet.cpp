@@ -8,8 +8,11 @@ Bullet::Bullet(int _real_x, int _real_y, short _direction,  short _speed, short 
 	real_y = _real_y;
 	blockImage.Load(_T(".\\res\\image\\bullet.png"));
 	TransparentPNG(&blockImage);
-	right = left + blockImage.GetWidth()/4;
-	bottom = top + blockImage.GetHeight();
+	left = real_x;
+	top = real_y;
+	right = left + BLOCK_WIDTH;
+	bottom = top + BLOCK_WIDTH;
+	bullet_enable = true;
 }
 
 
@@ -42,4 +45,69 @@ void Bullet::Draw(HDC &hdc)
 {
 	blockImage.Draw(hdc, real_x, real_y, BULLET_WIDTH, BULLET_WIDTH, direction * blockImage.GetWidth()/4, 
 		0, blockImage.GetWidth()/4, blockImage.GetHeight());
+}
+
+bool Bullet::hitAll()
+{
+	if(bullet_enable ==true)
+	{
+		//×²µØÍ¼
+		extern MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK];
+		short des_x1,des_y1,des_x2,des_y2;
+		switch (direction)
+		{
+		case DOWN:
+			{
+			
+				des_x1 = left / BLOCK_WIDTH;
+				des_y1 = (bottom+speed) / BLOCK_WIDTH;
+				des_x2 = (left +BULLET_WIDTH-1)/BLOCK_WIDTH;
+				des_y2 = des_y1;
+				break;
+			}
+		case LEFT:
+			{
+				if((left - speed)<=0) return true;
+				des_x1 = (left-speed) / BLOCK_WIDTH;
+				des_y1 = top / BLOCK_WIDTH;
+				des_x2 = des_x1;
+				des_y2 = (top + BULLET_WIDTH-1)/BLOCK_WIDTH;
+				break;
+			}
+		case UP:
+			{
+				if((top - speed)<=0) return true;
+				des_x1 = left / BLOCK_WIDTH;
+				des_y1 = (top-speed) / BLOCK_WIDTH;
+				des_x2 = (left + BULLET_WIDTH-1)/BLOCK_WIDTH;
+				des_y2 = des_y1;
+				break;
+			}
+		case RIGHT:
+			{
+				des_x1 = (right+speed) / BLOCK_WIDTH;
+				des_y1 = top / BLOCK_WIDTH;
+				des_x2 = des_x1;
+				des_y2 = (top + BULLET_WIDTH-1)/BLOCK_WIDTH;
+				break;
+			}
+		default:
+			break;
+		}
+		if(des_x1 >14 || des_x1 <0 || des_x2 >14 || des_x2 <0 || des_y1 >14 || des_y1 <0 
+			|| des_y2 >14 || des_y2 <0)
+		{
+			int a = right+speed;
+			bullet_enable = false;
+			return true;
+		}
+		if(map[des_x1][des_y1] != NULL && (map[des_x1][des_y1]->type == 3 || map[des_x1][des_y1]->type == 4 ||map[des_x1][des_y1]->type == 5)) 
+		{
+			map[des_x1][des_y1]->Explode();
+			bullet_enable = false;
+			return true;
+		}
+
+		return false;
+	}
 }

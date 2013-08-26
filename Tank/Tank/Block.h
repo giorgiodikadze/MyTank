@@ -6,6 +6,7 @@ public:
 	virtual ~Block(void);
 	virtual void Draw(HDC &hdc);
 	virtual void TransparentPNG(CImage *png);
+	virtual void Explode();
 
 	short type,x,y;
 	int real_x,real_y;
