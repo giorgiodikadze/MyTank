@@ -20,5 +20,7 @@
 
 // TODO: 在此处引用程序需要的其他头文件
 #include <atlimage.h>
+#include <time.h>
 
+//嗯,我就定义一个
 const int GAME_WINDOW_BLOCK = 15;

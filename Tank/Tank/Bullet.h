@@ -1,6 +1,9 @@
 #pragma once
-#include "moveableblock.h"
+#include "MoveableBlock.h"
 #include "MapBlock.h"
+
+class GTank;
+
 class Bullet
 	:public MoveableBlock
 {
@@ -15,6 +18,9 @@ public:
 	bool hitAll();
 
 	bool bullet_enable;
-	static const int BULLET_WIDTH = 15;
+	static const int BULLET_WIDTH = 4;
 };
+
+
+
 

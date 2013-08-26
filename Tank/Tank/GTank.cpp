@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GTank.h"
-
+#include <list>
+#include "Bullet.h"
+using namespace std;
 
 GTank::GTank(short _x, short _y, short _type, short _direction, short _speed)
 	:MoveableBlock(_x, _y, _type, _speed, _direction),frame(0)
@@ -21,8 +23,6 @@ GTank::GTank(short _x, short _y, short _type, short _direction, short _speed)
 
 GTank::~GTank(void)
 {
-	for(list<Bullet*>::iterator i=player_bullet.begin();i!=player_bullet.end();++i)
-		delete *i;
 }
 
 void GTank::Draw(HDC &hdc)
@@ -34,7 +34,7 @@ void GTank::Draw(HDC &hdc)
 
 void GTank::Move(short _direction)
 {
-	direction = _direction;
+	if(_direction != -1) direction = _direction;
 	frame++;
 	if(frame == 2) frame=0;
 	if(willHitMap() == true) return;
@@ -66,16 +66,20 @@ void GTank::Fire()
 			switch(direction)
 			{
 				case DOWN:
-					bullet_y+=BLOCK_WIDTH/2;
+					//bullet_y+=BLOCK_WIDTH/2;
+					bullet_x-=3;
 					break;
 				case LEFT:
-					bullet_x-=BLOCK_WIDTH/2;
+					//bullet_x-=BLOCK_WIDTH/2;
+					bullet_y-=3;
 					break;
 				case UP:
-					bullet_y-=BLOCK_WIDTH/2;
+					//bullet_y-=BLOCK_WIDTH/2;
+					bullet_x-=3;
 					break;
 				case RIGHT:
-					bullet_x+=BLOCK_WIDTH/2;
+					//bullet_x+=BLOCK_WIDTH/2;
+					bullet_y-=3;
 
 			}
 			player_bullet.push_back(new Bullet(bullet_x, bullet_y,direction));
@@ -87,6 +91,7 @@ void GTank::Fire()
 bool GTank::willHitMap()
 {
 	extern MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK];
+	
 	short des_x1,des_y1,des_x2,des_y2;
 	switch (direction)
 	{

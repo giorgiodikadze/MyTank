@@ -7,6 +7,23 @@
 
 using namespace std;
 
+//检查内存泄露的代码
+/*
+#ifdef _DEBUG
+#define DEBUG_CLIENTBLOCK new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#else
+#define DEBUG_CLIENTBLOCK
+#endif
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#ifdef _DEBUG
+#define new DEBUG_CLIENTBLOCK
+#endif
+*/
+//==========================
+
+
 #define TIMER_ID 1
 #define TIMER_INTERVAL 10
 
@@ -39,9 +56,12 @@ HDC cachehDC = CreateCompatibleDC(screen);
 HWND hWindow;
 list<GTank*> enemy_tank; //敌人坦克
 
-int enemy_num;
-const int ENEMY_MAX_NOW=4;
+int enemy_num_now =0;
+const int COME_TIME_INTERVAL = 150;
+int come_time = 1;
+const int ENEMY_MAX_MOMENT=4;
 const int ENEMY_MAX =20;
+int enemy_rest = ENEMY_MAX;
 
 GTank player_tank(6,6,11,UP,2);
 
@@ -61,3 +81,7 @@ void DrawMapExceptTree();
 void DrawMapTree();
 void Print();
 void Keydown();
+void EnemyCome();
+void DrawEnemy();
+void EnemyBehave();
+void DrawEnemyAndBullet();

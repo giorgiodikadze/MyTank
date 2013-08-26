@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 #include "Tank.h"
+#include <list>
+using namespace std;
 
 #define MAX_LOADSTRING 100
 
@@ -17,11 +19,18 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+
+//==================================
+
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+	//检查内存泄露的代码
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -135,7 +144,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
+	//在这里干一些事情========================
 	hWindow = hWnd;
+	srand((unsigned)time(NULL));
 
 	switch (message)
 	{
@@ -213,6 +224,7 @@ void lastClean()
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
 			delete map[x][y];
+			map[x][y] = NULL;
 		}
 	}
 }
@@ -297,16 +309,16 @@ void DrawGame()
 {
 	screen = GetDC(NULL);
 	cachehDC = CreateCompatibleDC(screen);
-
 	DrawBackground();
 	DrawMapExceptTree();
-
 	player_tank.DrawAndDealBullet(cachehDC);
 	if(player_death==false)
 	{
 		player_tank.Draw(cachehDC);
 	}
-
+	EnemyCome();
+	EnemyBehave();
+	DrawEnemyAndBullet();
 	DrawMapTree();
 
 	Print();
@@ -395,3 +407,63 @@ void Keydown()
 	}
 }
 
+void EnemyCome()
+{
+	static short x = -1;
+	if(enemy_num_now<ENEMY_MAX_MOMENT && come_time==0 && enemy_rest>0)
+	{
+		come_time=COME_TIME_INTERVAL;
+	}
+	//少于屏幕最大敌人数并且剩余敌人数大于零添加敌人
+	if(come_time>0)		
+	{
+		come_time--;
+		if(come_time == 0)
+		{
+			if(enemy_num_now < ENEMY_MAX_MOMENT && come_time == 0 && enemy_rest > 0)
+			{
+				enemy_num_now++;
+				enemy_rest--;
+				int r=rand()%8;
+				if(r == 0) enemy_tank.push_back(new GTank(++x%3*7, 0, 23, DOWN, 2));
+				else if(r == 1 || r==2) enemy_tank.push_back(new GTank(++x%3*7, 0, 22, DOWN, 3));
+				else enemy_tank.push_back(new GTank(++x%3*7, 0, 21, DOWN, 2));
+
+			}
+		}
+	}
+}
+
+void EnemyBehave()
+{
+	list<GTank*>::iterator iter_tank;
+	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
+	{
+		GTank& etank = **iter_tank;
+		short direction = etank.direction;
+		if(rand()%25 == 0) etank.Fire();
+		if(direction == DOWN && etank.y == 14 || direction == LEFT  && etank.x == 0  
+			|| direction == UP && etank.y == 0 || direction == RIGHT && etank.x == 14 || rand()%20 ==0 )
+		{
+			etank.Move(rand()%4);
+		}
+		etank.Move();
+	}
+}
+
+void DrawEnemyAndBullet()
+{
+	//OutputDebugString(_T("声明迭代器\n"));
+	list<GTank*>::iterator iter_tank;
+	//OutputDebugString(_T("进入循环\n"));
+	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
+	{
+		//OutputDebugString(_T("获取一个敌军坦克\n"));
+		GTank& etank = **iter_tank;
+		//OutputDebugString(_T("画坦克\n"));
+		etank.Draw(cachehDC);
+		//OutputDebugString(_T("处理子弹\n"));
+		etank.DrawAndDealBullet(cachehDC);
+		//OutputDebugString(_T("过程结束\n"));
+	}
+}

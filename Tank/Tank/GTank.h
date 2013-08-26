@@ -1,9 +1,12 @@
 #pragma once
 #include "MoveableBlock.h"
 #include "MapBlock.h"
-#include "Bullet.h"
 #include <list>
 using namespace std;
+
+class Bullet;
+
+
 class GTank :
 	public MoveableBlock
 {
@@ -12,7 +15,7 @@ public:
 	~GTank(void);
 
 	void Draw(HDC &hdc);
-	void Move(short direction);
+	void Move(short direction = -1);
 	void Fire();
 	bool willHitMap();
 	void DrawAndDealBullet(HDC &hDC);
@@ -22,5 +25,6 @@ public:
 	static const int BULLET_NUM = 1;
 	short bullet_real_num;
 	list<Bullet*> player_bullet;
+	
 };
 
