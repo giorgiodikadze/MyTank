@@ -7,6 +7,7 @@ using namespace std;
 class Bullet;
 
 
+
 class GTank :
 	public MoveableBlock
 {
@@ -19,6 +20,9 @@ public:
 	void Fire();
 	bool willHitMap();
 	void DrawAndDealBullet(HDC &hDC);
+	bool bulletHitTank();
+	void Reset(short _x, short _y, short _direction);
+
 
 	short frame;
 	static const int TANK_BLOCK_WIDTH = 32;

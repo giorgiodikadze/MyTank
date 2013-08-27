@@ -49,22 +49,22 @@ const int GS_GAMEOVER = 6;
 //游戏数据与状态定义
 bool player_death;
 short player_life;
-int game_state = GS_BEGIN;
-int game_level;
-HDC screen = GetDC(NULL);
-HDC cachehDC = CreateCompatibleDC(screen);
-HWND hWindow;
-list<GTank*> enemy_tank; //敌人坦克
-
 int enemy_num_now =0;
+
 const int COME_TIME_INTERVAL = 150;
 int come_time = 1;
 const int ENEMY_MAX_MOMENT=4;
 const int ENEMY_MAX =20;
 int enemy_rest = ENEMY_MAX;
 
-GTank player_tank(6,6,11,UP,2);
+int game_state = GS_BEGIN;
+int game_level;
+HDC screen = GetDC(NULL);
+HDC cachehDC = CreateCompatibleDC(screen);
+HWND hWindow;
 
+GTank player_tank(5,14,11,UP,2);
+list<GTank*> enemy_tank; //敌人坦克
 CRect clientRect;
 
 MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK] = {NULL};
@@ -84,4 +84,6 @@ void Keydown();
 void EnemyCome();
 void DrawEnemy();
 void EnemyBehave();
-void DrawEnemyAndBullet();
+void DrawEnemy();
+
+void DrawAllBullet(HDC &hDC);

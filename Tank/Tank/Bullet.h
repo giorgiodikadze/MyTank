@@ -15,10 +15,10 @@ public:
 
 	void Move();
 
-	bool hitAll();
+	bool hitMap();
 
 	bool bullet_enable;
-	static const int BULLET_WIDTH = 4;
+	static const int BULLET_WIDTH = 8;
 };
 
 

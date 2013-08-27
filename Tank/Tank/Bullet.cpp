@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Bullet.h"
 #include <list>
-#include "GTank.h"
 using namespace std;
 
 
@@ -51,37 +50,8 @@ void Bullet::Draw(HDC &hdc)
 		0, blockImage.GetWidth()/4, blockImage.GetHeight());
 }
 
-bool Bullet::hitAll()
+bool Bullet::hitMap()
 {
-	extern list<GTank*> enemy_tank;
-	extern list<Bullet*> player_bullet;
-	if(bullet_enable ==true)
-	{
-		//我方坦克子弹的处理
-		if(type == 11)
-		{
-			list<GTank*>::iterator iter_tank;
-			list<Bullet*>::iterator iter_bullet;
-			for(iter_bullet = player_bullet.begin(); iter_bullet != player_bullet.end(); iter_bullet++)
-			{
-				Bullet& mbullet = **iter_bullet;
-				int b_x = mbullet.real_x + Bullet::BULLET_WIDTH/2;
-				int b_y = mbullet.real_y + Bullet::BULLET_WIDTH/2;
-				for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
-				{
-					GTank& etank = **iter_tank;
-					int t_x = etank.real_x + GTank::TANK_BLOCK_WIDTH/2;
-					int t_y = etank.real_y + GTank::TANK_BLOCK_WIDTH/2;
-					if (abs(b_x - t_x)<GTank::BLOCK_WIDTH/2 && abs(b_y - t_y)<GTank::BLOCK_WIDTH/2)
-					{
-						delete *iter_tank;
-						iter_tank = enemy_tank.erase(iter_tank);
-						return true;
-					}
-				}
-			}
-		}
-		
 		//撞地图
 		extern MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK];
 		short des_x1,des_y1,des_x2,des_y2;
@@ -136,9 +106,13 @@ bool Bullet::hitAll()
 		{
 			map[des_x1][des_y1]->Explode();
 			bullet_enable = false;
-			return true;
 		}
+		if(map[des_x2][des_y2] != NULL && (map[des_x2][des_y2]->type == 3 || map[des_x2][des_y2]->type == 4 ||map[des_x2][des_y2]->type == 5)) 
+		{
+			map[des_x2][des_y2]->Explode();
+			bullet_enable = false;
+		}
+		if(!bullet_enable) return true;
 
 		return false;
-	}
 }

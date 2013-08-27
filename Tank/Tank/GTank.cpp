@@ -144,13 +144,74 @@ bool GTank::willHitMap()
 
 void GTank::DrawAndDealBullet(HDC &hDC)
 {
+	//TCHAR TEMP[3];
+	//wsprintf(TEMP,_T("%d"),player_bullet.size());
+	//MessageBox(NULL, _T(""),TEMP,MB_OK);
 	for(list<Bullet*>::iterator iter_bullet=player_bullet.begin(); iter_bullet!=player_bullet.end(); )
 	{
 		Bullet& bullet=**iter_bullet;
-		if(bullet.hitAll() != true)
+		if((bullet.hitMap()) != true)
 		{
-			bullet.Move();
-			(*(iter_bullet++))->Draw(hDC);
+			int b_x = bullet.real_x + Bullet::BULLET_WIDTH/2;
+			int b_y = bullet.real_y + Bullet::BULLET_WIDTH/2;
+			//如果是玩家坦克的子弹，那么检查是否打到敌人
+			if(type == 11)
+			{
+				//player_bullet是本坦克的子弹
+				//player_tank 是玩家的坦克
+				extern list<GTank*> enemy_tank; //敌人坦克
+				extern int enemy_num_now;
+				bool enemydown = false;
+				for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
+				{
+					GTank& etank = **iter_etank;
+					int t_x = etank.real_x + GTank::TANK_BLOCK_WIDTH/2;
+					int t_y = etank.real_y + GTank::TANK_BLOCK_WIDTH/2;
+					
+					//暂时没有子弹打子弹的
+					
+					if (abs(b_x - t_x) < GTank::BLOCK_WIDTH/2 && abs(b_y - t_y) < GTank::BLOCK_WIDTH/2)
+					{
+						delete *iter_etank;
+						iter_etank = enemy_tank.erase(iter_etank);
+						enemy_num_now--;
+						delete *iter_bullet;
+						iter_bullet=player_bullet.erase(iter_bullet);
+						bullet_real_num--;
+						enemydown = true;
+						break;
+					}
+					else
+					{
+						iter_etank++;
+					}
+					
+				}
+				bullet.Move();
+				if(!enemydown) (*(iter_bullet++))->Draw(hDC);
+			}
+			else //如果是敌人的子弹，那么检查是否打到玩家
+			{
+				//OutputDebugString(_T("FIRE!\n"));
+				extern GTank player_tank;
+				extern bool player_death;
+				extern short player_life;
+				int t_x = player_tank.real_x + GTank::TANK_BLOCK_WIDTH/2;
+				int t_y = player_tank.real_y + GTank::TANK_BLOCK_WIDTH/2;
+				if (abs(b_x - t_x)<GTank::BLOCK_WIDTH/2 && abs(b_y - t_y)<GTank::BLOCK_WIDTH/2)
+				{
+					delete *iter_bullet;
+					iter_bullet=player_bullet.erase(iter_bullet);
+					bullet_real_num--;
+					player_death = true;
+				}
+				else
+				{
+					bullet.Move();
+					(*(iter_bullet++))->Draw(hDC);
+				}
+			}
+
 		}
 		else
 		{
@@ -159,4 +220,17 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 			bullet_real_num--;
 		}
 	}
+}
+
+void GTank::Reset(short _x, short _y, short _direction)
+{
+	x = _x;
+	y = _y;
+	direction = _direction;
+	real_x = BLOCK_WIDTH * x+4;
+	real_y = BLOCK_WIDTH * y+4;
+	top = _y * BLOCK_WIDTH+4;
+	left = _x * BLOCK_WIDTH+4;
+	bottom = top + BLOCK_WIDTH-4;
+	right = left + BLOCK_WIDTH-4;
 }

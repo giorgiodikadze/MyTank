@@ -227,6 +227,7 @@ void lastClean()
 			map[x][y] = NULL;
 		}
 	}
+	
 }
 
 void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
@@ -234,13 +235,22 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 	switch (game_state)
 	{
 	case GS_BEGIN:
+		lastClean();
 		InitializeProgram();
 		game_state = GS_LOADING;
 		break;
 	case GS_LOADING:
+		for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
+		{
+			delete *iter_etank;
+			iter_etank = enemy_tank.erase(iter_etank); 
+		}
+		lastClean();
 		InitializeMap(++game_level);
 		if(game_level == GAME_LEVEL_ALL) game_level = 0;
-		DrawGame();
+		enemy_num_now =0;
+		come_time = 1;
+		enemy_rest = ENEMY_MAX;
 		game_state = GS_RUNNING;
 		break;
 	case GS_RUNNING:
@@ -256,13 +266,18 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 			{
 				//玩家复活
 				player_death=false;
-				//player_tank=GTank(8,8,11,UP);
+				player_tank.Reset(5, 14, UP);
 			}
 			else game_state = GS_GAMEOVER;
 		}
+		if(map[7][14]->state == 0) game_state = GS_GAMEOVER;
+		if(enemy_rest == 0 && enemy_num_now ==0) game_state = GS_WIN;
 		break;
 	case GS_GAMEOVER:
 		game_state = GS_BEGIN;
+		break;
+	case GS_WIN:
+		game_state = GS_LOADING;
 		break;
 	default:
 		break;
@@ -303,28 +318,6 @@ void InitializeMap(short level)
 		}
 	}
 	in.close();
-}
-
-void DrawGame()
-{
-	screen = GetDC(NULL);
-	cachehDC = CreateCompatibleDC(screen);
-	DrawBackground();
-	DrawMapExceptTree();
-	player_tank.DrawAndDealBullet(cachehDC);
-	if(player_death==false)
-	{
-		player_tank.Draw(cachehDC);
-	}
-	EnemyCome();
-	EnemyBehave();
-	DrawEnemyAndBullet();
-	DrawMapTree();
-
-	Print();
-
-	DeleteDC(cachehDC);
-	ReleaseDC(NULL, screen);
 }
 
 void DrawBackground()
@@ -427,7 +420,7 @@ void EnemyCome()
 				int r=rand()%8;
 				if(r == 0) enemy_tank.push_back(new GTank(++x%3*7, 0, 23, DOWN, 2));
 				else if(r == 1 || r==2) enemy_tank.push_back(new GTank(++x%3*7, 0, 22, DOWN, 3));
-				else enemy_tank.push_back(new GTank(++x%3*7, 0, 21, DOWN, 2));
+				else enemy_tank.push_back(new GTank(++x%3*7, 0, 21, DOWN, 1));
 
 			}
 		}
@@ -441,7 +434,10 @@ void EnemyBehave()
 	{
 		GTank& etank = **iter_tank;
 		short direction = etank.direction;
-		if(rand()%25 == 0) etank.Fire();
+		if(rand()%25 == 0)
+		{
+			etank.Fire();
+		}
 		if(direction == DOWN && etank.y == 14 || direction == LEFT  && etank.x == 0  
 			|| direction == UP && etank.y == 0 || direction == RIGHT && etank.x == 14 || rand()%20 ==0 )
 		{
@@ -451,7 +447,7 @@ void EnemyBehave()
 	}
 }
 
-void DrawEnemyAndBullet()
+void DrawEnemy()
 {
 	//OutputDebugString(_T("声明迭代器\n"));
 	list<GTank*>::iterator iter_tank;
@@ -462,8 +458,40 @@ void DrawEnemyAndBullet()
 		GTank& etank = **iter_tank;
 		//OutputDebugString(_T("画坦克\n"));
 		etank.Draw(cachehDC);
-		//OutputDebugString(_T("处理子弹\n"));
-		etank.DrawAndDealBullet(cachehDC);
 		//OutputDebugString(_T("过程结束\n"));
 	}
+}
+
+void DrawAllBullet(HDC &hDC)
+{
+	player_tank.DrawAndDealBullet(hDC);
+ 	list<GTank*>::iterator iter_tank;
+	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
+	{
+		GTank& etank = **iter_tank;
+		etank.DrawAndDealBullet(hDC);
+	}
+}
+
+
+void DrawGame()
+{
+	screen = GetDC(NULL);
+	cachehDC = CreateCompatibleDC(screen);
+	DrawBackground();
+	DrawMapExceptTree();
+	if(player_death==false)
+	{
+		player_tank.Draw(cachehDC);
+	}
+	EnemyCome();
+	EnemyBehave();
+	DrawAllBullet(cachehDC);
+	DrawEnemy();
+	DrawMapTree();
+
+	Print();
+
+	DeleteDC(cachehDC);
+	ReleaseDC(NULL, screen);
 }
