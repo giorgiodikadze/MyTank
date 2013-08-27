@@ -124,6 +124,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+   
+	//获取DC==================================
+	//screen = GetDC(NULL);
+	//cachehDC = CreateCompatibleDC(screen);
+	//HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	//SelectObject(cachehDC,hBitmap);
+	//DeleteObject(hBitmap);
 
    return TRUE;
 }
@@ -148,8 +155,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	hWindow = hWnd;
 	srand((unsigned)time(NULL));
 
+	//鼠标单击事件大集合
 	switch (message)
 	{
+	case WM_LBUTTONDOWN:
+		{
+			int mouse_x=LOWORD(lParam);
+			int mouse_y=HIWORD(lParam);
+			switch(game_state)
+			{
+			case GS_PREFACE:
+				if (mouse_x > 60 && mouse_x < 269 && mouse_y > 296 && mouse_y < 346)
+				{
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
+					game_state = GS_BEGIN;
+				}
+				break;
+			case GS_GAMEOVER:
+				if (mouse_x > 24 && mouse_x < 210 && mouse_y > 447 && mouse_y < 489)
+				{
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
+					game_state = GS_PREPARE;
+				}
+				if(mouse_x > 454 && mouse_x < 581 && mouse_y > 447 && mouse_y < 489)
+				{
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
+					game_state = GS_BEGIN;
+				}
+				break;
+			case GS_WIN:
+				if (mouse_x > 406 && mouse_x < 592 && mouse_y > 419 && mouse_y < 448)
+				{
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
+					game_state = GS_LOADING;
+				}
+				if (mouse_x > 406 && mouse_x < 592 && mouse_y > 448 && mouse_y < 490)
+				{
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
+					game_state = GS_PREPARE;
+				}
+				break;
+			}
+		}
 	//窗口是否激活
 	case WM_ACTIVATE://测试时不断循环是因为用的对话框测试，对话框能让窗口失去焦点，对话框消失后窗口又会收到WM_ACTIVATE
 		if(wParam!=WA_INACTIVE)
@@ -191,6 +238,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		lastClean();
 		PostQuitMessage(0);
 		break;
+	case WM_MOUSEMOVE:
+		mouse_x=LOWORD(lParam);
+		mouse_y=HIWORD(lParam);
+		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -219,6 +270,11 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void lastClean()
 {
+	for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
+	{
+		delete *iter_etank;
+		iter_etank = enemy_tank.erase(iter_etank); 
+	}
 	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
 	{
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
@@ -227,25 +283,36 @@ void lastClean()
 			map[x][y] = NULL;
 		}
 	}
-	
 }
 
 void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 {
 	switch (game_state)
 	{
+	case GS_PREFACE:
+		{
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\preface.png"), 0, 100);
+			if(mouse_x > 60 && mouse_x < 269 && mouse_y > 296 && mouse_y < 346)
+			{
+				loadAnImageToCache(cachehDC,_T(".\\res\\image\\fire.png"), 60 , 296);
+			}
+			if(mouse_x > 106 && mouse_x < 532 && mouse_y > 346 && mouse_y < 403)
+			{
+				loadAnImageToCache(cachehDC,_T(".\\res\\image\\direction.png"), 106 , 346); 
+				loadAnImageToCache(cachehDC,_T(".\\res\\image\\control.png"), 136 , 404);
+			}
+			Print();
+			//game_state = GS_BEGIN;
+			break;
+		}
 	case GS_BEGIN:
 		lastClean();
 		InitializeProgram();
 		game_state = GS_LOADING;
 		break;
 	case GS_LOADING:
-		for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
-		{
-			delete *iter_etank;
-			iter_etank = enemy_tank.erase(iter_etank); 
-		}
 		lastClean();
+		player_tank.Reset(5, 14, UP);
 		InitializeMap(++game_level);
 		if(game_level == GAME_LEVEL_ALL) game_level = 0;
 		enemy_num_now =0;
@@ -254,7 +321,9 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		game_state = GS_RUNNING;
 		break;
 	case GS_RUNNING:
-
+		//=====================================
+		//game_state = GS_WIN;//测试代码
+		//=====================================
 		if(player_death==false) Keydown();
 
 		DrawGame();
@@ -274,20 +343,53 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		if(enemy_rest == 0 && enemy_num_now ==0) game_state = GS_WIN;
 		break;
 	case GS_GAMEOVER:
-		game_state = GS_BEGIN;
+		lastClean();
+		loadAnImageToCache(cachehDC,_T(".\\res\\image\\fail.png"), 0, 100);
+		if(mouse_x > 24 && mouse_x < 210 && mouse_y > 447 && mouse_y < 489)
+		{
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\fail_homepage.png"), 24, 447);
+		}
+		if(mouse_x > 454 && mouse_x < 581 && mouse_y > 447 && mouse_y < 489)
+		{
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\tryagain.png"), 454, 447);
+		}
+		Print();
 		break;
 	case GS_WIN:
-		game_state = GS_LOADING;
+		lastClean();
+		loadAnImageToCache(cachehDC,_T(".\\res\\image\\pass.png"), 0, 100);
+		if(mouse_x > 406 && mouse_x < 592 && mouse_y > 419 && mouse_y < 448)
+		{
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\nextlevel.png"), 406, 419);
+		}
+		if(mouse_x > 406 && mouse_x < 592 && mouse_y > 448 && mouse_y < 490)
+		{
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\homepage.png"), 406, 448);
+		}
+		Print();
+		//game_state = GS_LOADING;
+		break;
+	case GS_PREPARE:
+		Prepare();
+		game_state = GS_PREFACE;
 		break;
 	default:
 		break;
 	}
 }
 
-//初始化程序，在程序刚开始或者从头再来
-void InitializeProgram()
+//进入前的准备
+void Prepare()
 {
 	GetClientRect(hWindow,&clientRect);
+	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	SelectObject(cachehDC,hBitmap);
+	DeleteObject(hBitmap);
+}
+
+//初始化程序，游戏开始
+void InitializeProgram()
+{
 	player_death = true;
 	player_life = 3;
 	game_level = 0;
@@ -324,30 +426,42 @@ void DrawBackground()
 {
 	CImage backgroundImage;
 	backgroundImage.Load(_T(".\\res\\image\\background.png"));
-	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
-	SelectObject(cachehDC,hBitmap);
+	//HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	//SelectObject(cachehDC,hBitmap);
 	backgroundImage.Draw(cachehDC,0,0,clientRect.Width(),clientRect.Height());
-	DeleteObject(hBitmap);
+	//DeleteObject(hBitmap);
 }
 
 void DrawMapExceptTree()
 {
+	//OutputDebugString(_T("Y循环\n"));
 	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
 	{
+		//OutputDebugString(_T("X循环\n"));
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
+			//OutputDebugString(_T("第一次判断\n"));
 			if(map[x][y] != NULL && map[x][y]->type != 1)
 			{
+				//OutputDebugString(_T("第二次判断\n"));
 				if(map[x][y]->type == 3 && map[x][y]->state == 0)
 				{
+					//OutputDebugString(_T("delete\n"));
 					delete map[x][y];
+					//OutputDebugString(_T("NULL\n"));
 					map[x][y] = NULL;
+					//OutputDebugString(_T("continue\n"));
 					continue;
 				}
+				//OutputDebugString(_T("画出来\n"));
 				map[x][y]->Draw(cachehDC);
+				//OutputDebugString(_T("第二次判断结束\n"));
 			}
+			//OutputDebugString(_T("第一次判断结束\n"));
 		}
+		//OutputDebugString(_T("X循环结束\n"));
 	}
+	//OutputDebugString(_T("Y循环结束，过程结束\n"));
 }
 
 void DrawMapTree()
@@ -447,37 +561,46 @@ void EnemyBehave()
 	}
 }
 
-void DrawEnemy()
+void DrawEnemy()//没有RTE
 {
-	//OutputDebugString(_T("声明迭代器\n"));
 	list<GTank*>::iterator iter_tank;
-	//OutputDebugString(_T("进入循环\n"));
 	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
 	{
-		//OutputDebugString(_T("获取一个敌军坦克\n"));
 		GTank& etank = **iter_tank;
-		//OutputDebugString(_T("画坦克\n"));
 		etank.Draw(cachehDC);
-		//OutputDebugString(_T("过程结束\n"));
 	}
 }
 
 void DrawAllBullet(HDC &hDC)
 {
+	//OutputDebugString(_T("画所有人子弹，先玩家子弹\n"));
 	player_tank.DrawAndDealBullet(hDC);
+	//OutputDebugString(_T("声明迭代器\n"));
  	list<GTank*>::iterator iter_tank;
+	//OutputDebugString(_T("开始循环\n"));
 	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
 	{
+		//OutputDebugString(_T("获取一个元素\n"));
 		GTank& etank = **iter_tank;
+		//OutputDebugString(_T("画这个元素的子弹\n"));
 		etank.DrawAndDealBullet(hDC);
 	}
+	//OutputDebugString(_T("循环，过程结束\n"));
 }
 
+void loadAnImageToCache(HDC &hDC, LPCWSTR path, int _real_x, int _real_y)
+{
+	CImage image;
+	image.Load(path);
+	Block::TransparentPNG(&image);
+	image.Draw(hDC, _real_x, _real_y);
+}
 
 void DrawGame()
 {
-	screen = GetDC(NULL);
-	cachehDC = CreateCompatibleDC(screen);
+	//screen = GetDC(NULL);
+	//cachehDC = CreateCompatibleDC(screen);
+
 	DrawBackground();
 	DrawMapExceptTree();
 	if(player_death==false)
@@ -492,6 +615,7 @@ void DrawGame()
 
 	Print();
 
-	DeleteDC(cachehDC);
-	ReleaseDC(NULL, screen);
+	//DeleteDC(cachehDC);
+	//ReleaseDC(NULL, screen);
+
 }

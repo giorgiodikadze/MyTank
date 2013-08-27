@@ -27,5 +27,6 @@ void MapBlock::Draw(HDC &hdc)
 
 void MapBlock::Explode()
 {
+	if(type == 5) PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
 	if(state > 0) state--;
 }

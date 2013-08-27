@@ -34,7 +34,7 @@ using namespace std;
 const short DOWN=0, LEFT=1, UP=2, RIGHT=3;
 
 //常量定义
-const int GAME_LEVEL_ALL = 3;
+const int GAME_LEVEL_ALL = 4;
 //const int GAME_WINDOW_BLOCK = 15;已经在stdafx.h中定义
 const int GAME_BLOCK_WIDTH = 40;
 
@@ -45,6 +45,9 @@ const int GS_WIN = 3;
 const int GS_LOADING = 4;
 const int GS_BEGIN =5;
 const int GS_GAMEOVER = 6;
+const int GS_GAMEFINISH = 7;
+const int GS_PREFACE = 8;
+const int GS_PREPARE = 9;
 
 //游戏数据与状态定义
 bool player_death;
@@ -57,7 +60,7 @@ const int ENEMY_MAX_MOMENT=4;
 const int ENEMY_MAX =20;
 int enemy_rest = ENEMY_MAX;
 
-int game_state = GS_BEGIN;
+int game_state = GS_PREPARE;
 int game_level;
 HDC screen = GetDC(NULL);
 HDC cachehDC = CreateCompatibleDC(screen);
@@ -67,12 +70,16 @@ GTank player_tank(5,14,11,UP,2);
 list<GTank*> enemy_tank; //敌人坦克
 CRect clientRect;
 
+int mouse_x;
+int mouse_y;
+
 MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK] = {NULL};
 
 void lastClean();
 
 void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime);
 
+void Prepare();
 void InitializeProgram();
 void InitializeMap(short level);
 void DrawGame();
@@ -87,3 +94,5 @@ void EnemyBehave();
 void DrawEnemy();
 
 void DrawAllBullet(HDC &hDC);
+
+void loadAnImageToCache(HDC &hDC, LPCWSTR path, int x, int y);

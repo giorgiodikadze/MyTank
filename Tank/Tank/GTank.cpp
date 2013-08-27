@@ -61,24 +61,25 @@ void GTank::Fire()
 {
 	if(bullet_real_num < BULLET_NUM)
 		{
+			if(type == 11) PlaySound(_T(".\\res\\wav\\shoot.wav"),NULL,SND_FILENAME | SND_ASYNC);
 			int bullet_x=real_x+(BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
 			int bullet_y=real_y+(BLOCK_WIDTH- Bullet::BULLET_WIDTH)/2;
 			switch(direction)
 			{
 				case DOWN:
-					//bullet_y+=BLOCK_WIDTH/2;
+					bullet_y+=BLOCK_WIDTH/2;
 					bullet_x-=3;
 					break;
 				case LEFT:
-					//bullet_x-=BLOCK_WIDTH/2;
+					bullet_x-=BLOCK_WIDTH/2;
 					bullet_y-=3;
 					break;
 				case UP:
-					//bullet_y-=BLOCK_WIDTH/2;
+					bullet_y-=BLOCK_WIDTH/2;
 					bullet_x-=3;
 					break;
 				case RIGHT:
-					//bullet_x+=BLOCK_WIDTH/2;
+					bullet_x+=BLOCK_WIDTH/2;
 					bullet_y-=3;
 
 			}

@@ -18,7 +18,6 @@ Bullet::Bullet(int _real_x, int _real_y, short _direction,  short _speed, short 
 	bullet_enable = true;
 }
 
-
 Bullet::~Bullet(void)
 {
 }
