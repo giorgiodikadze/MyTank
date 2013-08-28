@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "GTank.h"
 #include <list>
-#include "Bullet.h"
 using namespace std;
 
 GTank::GTank(short _x, short _y, short _type, short _direction, short _speed)
@@ -176,6 +175,7 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 					{
 						extern int score;
 						delete *iter_etank;
+						PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
 						iter_etank = enemy_tank.erase(iter_etank);
 						if(etank.type == 21) score++;
 						else if(etank.type == 22) score += 2;

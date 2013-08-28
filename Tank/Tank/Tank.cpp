@@ -147,7 +147,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
 
@@ -197,6 +196,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
+	case WM_KEYDOWN:
+		switch(wParam)
+		{
+		case VK_ESCAPE:
+			SendMessage(hWindow,WM_DESTROY,NULL,NULL);
+			break;
+		}
+		break;
 	//窗口是否激活
 	case WM_ACTIVATE://测试时不断循环是因为用的对话框测试，对话框能让窗口失去焦点，对话框消失后窗口又会收到WM_ACTIVATE
 		if(wParam!=WA_INACTIVE)
@@ -213,22 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if(wParam==SIZE_MINIMIZED)
 			KillTimer(hWnd,TIMER_ID);
 		break;
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// 分析菜单选择:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
+
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);
@@ -270,6 +262,12 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void lastClean()
 {
+	for(list<Bullet*>::iterator iter_bullet = player_tank.player_bullet.begin(); iter_bullet!=player_tank.player_bullet.end();)
+	{
+		delete *iter_bullet;
+		iter_bullet = player_tank.player_bullet.erase(iter_bullet); 
+	}
+	
 	for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
 	{
 		delete *iter_etank;
@@ -317,13 +315,12 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		if(game_level == GAME_LEVEL_ALL) game_level = 0;
 		enemy_num_now =0;
 		come_time = 1;
-		enemy_rest = ENEMY_MAX;
+		enemy_rest = game_level*5;
 		game_state = GS_RUNNING;
 		break;
 	case GS_RUNNING:
-
 		//=====================================
-		//game_state = GS_WIN;//测试代码
+		//game_state = GS_WIN;//测试代码,直接过关
 		//=====================================
 		if(player_death==false) Keydown();
 
@@ -345,7 +342,8 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		break;
 	case GS_GAMEOVER:
 		lastClean();
-		loadAnImageToCache(cachehDC,_T(".\\res\\image\\fail.png"), 0, 100);
+		loadAnImageToCache(cachehDC,_T(".\\res\\image\\fail.png"), 0, 0);
+		loadIntToCache(168, 259, score);
 		if(mouse_x > 24 && mouse_x < 210 && mouse_y > 447 && mouse_y < 489)
 		{
 			loadAnImageToCache(cachehDC,_T(".\\res\\image\\fail_homepage.png"), 24, 447);
@@ -358,10 +356,11 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		break;
 	case GS_WIN:
 		lastClean();
-		loadAnImageToCache(cachehDC,_T(".\\res\\image\\pass.png"), 0, 100);
-		if(mouse_x > 406 && mouse_x < 592 && mouse_y > 419 && mouse_y < 448)
+		loadAnImageToCache(cachehDC,_T(".\\res\\image\\pass.png"), 0, 0);
+		loadIntToCache(56, 212, score);
+		if(mouse_x > 406 && mouse_x < 592 && mouse_y > 406 && mouse_y < 448)
 		{
-			loadAnImageToCache(cachehDC,_T(".\\res\\image\\nextlevel.png"), 406, 419);
+			loadAnImageToCache(cachehDC,_T(".\\res\\image\\nextlevel.png"), 406, 406);
 		}
 		if(mouse_x > 406 && mouse_x < 592 && mouse_y > 448 && mouse_y < 490)
 		{
@@ -384,8 +383,12 @@ void Prepare()
 {
 	GetClientRect(hWindow,&clientRect);
 	HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
+	HFONT myFont = CreateFont(50,30,0,0,FW_THIN, false, false, false, CHINESEBIG5_CHARSET, OUT_CHARACTER_PRECIS,
+						 CLIP_CHARACTER_PRECIS, DEFAULT_QUALITY, FF_MODERN,_T("Brush Script MT"));
 	SelectObject(cachehDC,hBitmap);
+	SelectObject(cachehDC, myFont);
 	DeleteObject(hBitmap);
+	DeleteObject(myFont);
 }
 
 //初始化程序，游戏开始
@@ -436,34 +439,22 @@ void DrawBackground()
 
 void DrawMapExceptTree()
 {
-	//OutputDebugString(_T("Y循环\n"));
 	for(short y=0;y<GAME_WINDOW_BLOCK;y++)
 	{
-		//OutputDebugString(_T("X循环\n"));
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
-			//OutputDebugString(_T("第一次判断\n"));
 			if(map[x][y] != NULL && map[x][y]->type != 1)
 			{
-				//OutputDebugString(_T("第二次判断\n"));
 				if(map[x][y]->type == 3 && map[x][y]->state == 0)
 				{
-					//OutputDebugString(_T("delete\n"));
 					delete map[x][y];
-					//OutputDebugString(_T("NULL\n"));
 					map[x][y] = NULL;
-					//OutputDebugString(_T("continue\n"));
 					continue;
 				}
-				//OutputDebugString(_T("画出来\n"));
 				map[x][y]->Draw(cachehDC);
-				//OutputDebugString(_T("第二次判断结束\n"));
 			}
-			//OutputDebugString(_T("第一次判断结束\n"));
 		}
-		//OutputDebugString(_T("X循环结束\n"));
 	}
-	//OutputDebugString(_T("Y循环结束，过程结束\n"));
 }
 
 void DrawMapTree()
@@ -483,16 +474,14 @@ void DrawMapTree()
 void Print()
 {
 	HDC hdc = GetDC(hWindow); //hWindow是我定义的客户区的句柄
+	SetTextColor(cachehDC, RGB(255,0,0)) ; 
+	SetBkMode(cachehDC, TRANSPARENT); //透明背景 
 	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
 	ReleaseDC(hWindow,hdc);
 }
 
 void Keydown()
 {
-	if(KEYDOWN(VK_ESCAPE))
-	{
-		SendMessage(hWindow,WM_DESTROY,NULL,NULL);
-	}
 	if(KEYDOWN(VK_SPACE))
 	{
 		player_tank.Fire();
@@ -590,6 +579,13 @@ void loadAnImageToCache(HDC &hDC, LPCWSTR path, int _real_x, int _real_y)
 	image.Load(path);
 	Block::TransparentPNG(&image);
 	image.Draw(hDC, _real_x, _real_y);
+}
+
+void loadIntToCache(int x, int y, int score)
+{
+	TCHAR score_str[10];
+	wsprintf(score_str,_T("%d00"),score);
+	TextOut(cachehDC, x, y, score_str, _tcslen(score_str));
 }
 
 void DrawGame()

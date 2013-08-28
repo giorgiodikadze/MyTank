@@ -2,11 +2,8 @@
 #include "MoveableBlock.h"
 #include "MapBlock.h"
 #include <list>
+#include "Bullet.h"
 using namespace std;
-
-class Bullet;
-
-
 
 class GTank :
 	public MoveableBlock

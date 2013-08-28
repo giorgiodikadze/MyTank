@@ -97,3 +97,4 @@ void DrawEnemy();
 void DrawAllBullet(HDC &hDC);
 
 void loadAnImageToCache(HDC &hDC, LPCWSTR path, int x, int y);
+void loadIntToCache(int x, int y, int score);
