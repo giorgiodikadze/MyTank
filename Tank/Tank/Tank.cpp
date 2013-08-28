@@ -321,6 +321,7 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		game_state = GS_RUNNING;
 		break;
 	case GS_RUNNING:
+
 		//=====================================
 		//game_state = GS_WIN;//测试代码
 		//=====================================
@@ -390,6 +391,7 @@ void Prepare()
 //初始化程序，游戏开始
 void InitializeProgram()
 {
+	score = 0;
 	player_death = true;
 	player_life = 3;
 	game_level = 0;
@@ -480,7 +482,7 @@ void DrawMapTree()
 
 void Print()
 {
-	HDC hdc = GetDC(hWindow);
+	HDC hdc = GetDC(hWindow); //hWindow是我定义的客户区的句柄
 	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
 	ReleaseDC(hWindow,hdc);
 }
@@ -532,9 +534,9 @@ void EnemyCome()
 				enemy_num_now++;
 				enemy_rest--;
 				int r=rand()%8;
-				if(r == 0) enemy_tank.push_back(new GTank(++x%3*7, 0, 23, DOWN, 2));
+				if(r == 0) enemy_tank.push_back(new GTank(++x%3*7, 0, 23, DOWN, 3));
 				else if(r == 1 || r==2) enemy_tank.push_back(new GTank(++x%3*7, 0, 22, DOWN, 3));
-				else enemy_tank.push_back(new GTank(++x%3*7, 0, 21, DOWN, 1));
+				else enemy_tank.push_back(new GTank(++x%3*7, 0, 21, DOWN, 2));
 
 			}
 		}
@@ -573,19 +575,13 @@ void DrawEnemy()//没有RTE
 
 void DrawAllBullet(HDC &hDC)
 {
-	//OutputDebugString(_T("画所有人子弹，先玩家子弹\n"));
 	player_tank.DrawAndDealBullet(hDC);
-	//OutputDebugString(_T("声明迭代器\n"));
  	list<GTank*>::iterator iter_tank;
-	//OutputDebugString(_T("开始循环\n"));
 	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
 	{
-		//OutputDebugString(_T("获取一个元素\n"));
 		GTank& etank = **iter_tank;
-		//OutputDebugString(_T("画这个元素的子弹\n"));
 		etank.DrawAndDealBullet(hDC);
 	}
-	//OutputDebugString(_T("循环，过程结束\n"));
 }
 
 void loadAnImageToCache(HDC &hDC, LPCWSTR path, int _real_x, int _real_y)

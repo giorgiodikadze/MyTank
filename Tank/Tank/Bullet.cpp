@@ -94,8 +94,8 @@ bool Bullet::hitMap()
 		default:
 			break;
 		}
-		if(des_x1 >15 || des_x1 <0 || des_x2 >15 || des_x2 <0 || des_y1 >15 || des_y1 <0 
-			|| des_y2 >15 || des_y2 <0)
+		if(des_x1 >14 || des_x1 <0 || des_x2 >14 || des_x2 <0 || des_y1 >14 || des_y1 <0 
+			|| des_y2 >14 || des_y2 <0)
 		{
 			int a = right+speed;
 			bullet_enable = false;
@@ -111,6 +111,7 @@ bool Bullet::hitMap()
 			map[des_x2][des_y2]->Explode();
 			bullet_enable = false;
 		}
+
 		if(!bullet_enable) return true;
 
 		return false;

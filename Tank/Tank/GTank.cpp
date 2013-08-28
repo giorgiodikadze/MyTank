@@ -83,7 +83,8 @@ void GTank::Fire()
 					bullet_y-=3;
 
 			}
-			player_bullet.push_back(new Bullet(bullet_x, bullet_y,direction));
+			if(type == 23)player_bullet.push_back(new Bullet(bullet_x, bullet_y,direction, 6));
+			else player_bullet.push_back(new Bullet(bullet_x, bullet_y,direction));
 			bullet_real_num++;
 			//MessageBox(NULL,_T(""),_T(""),MB_OK);
 		}
@@ -173,8 +174,12 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 					
 					if (abs(b_x - t_x) < GTank::BLOCK_WIDTH/2 && abs(b_y - t_y) < GTank::BLOCK_WIDTH/2)
 					{
+						extern int score;
 						delete *iter_etank;
 						iter_etank = enemy_tank.erase(iter_etank);
+						if(etank.type == 21) score++;
+						else if(etank.type == 22) score += 2;
+						else score += 3;
 						enemy_num_now--;
 						delete *iter_bullet;
 						iter_bullet=player_bullet.erase(iter_bullet);
@@ -193,7 +198,6 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 			}
 			else //如果是敌人的子弹，那么检查是否打到玩家
 			{
-				//OutputDebugString(_T("FIRE!\n"));
 				extern GTank player_tank;
 				extern bool player_death;
 				extern short player_life;
@@ -204,6 +208,7 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 					delete *iter_bullet;
 					iter_bullet=player_bullet.erase(iter_bullet);
 					bullet_real_num--;
+					PlaySound(_T(".\\res\\wav\\bang.wav"),NULL,SND_FILENAME | SND_ASYNC);
 					player_death = true;
 				}
 				else

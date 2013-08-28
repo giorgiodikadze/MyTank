@@ -60,6 +60,7 @@ const int ENEMY_MAX_MOMENT=4;
 const int ENEMY_MAX =20;
 int enemy_rest = ENEMY_MAX;
 
+int score;
 int game_state = GS_PREPARE;
 int game_level;
 HDC screen = GetDC(NULL);
