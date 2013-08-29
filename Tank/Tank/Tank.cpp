@@ -202,6 +202,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case VK_ESCAPE:
 			SendMessage(hWindow,WM_DESTROY,NULL,NULL);
 			break;
+		case 88:
+			for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
+			{
+				GTank& etank = **iter_etank;
+				delete *iter_etank;
+				iter_etank = enemy_tank.erase(iter_etank);
+				if(etank.type == 21) score++;
+				else if(etank.type == 22) score += 2;
+				else score += 3;
+				enemy_num_now--;
+			}
+			break;
 		}
 		break;
 	//窗口是否激活
@@ -266,6 +278,7 @@ void lastClean()
 	{
 		delete *iter_bullet;
 		iter_bullet = player_tank.player_bullet.erase(iter_bullet); 
+		player_tank.bullet_real_num--;
 	}
 	
 	for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
@@ -312,10 +325,10 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		lastClean();
 		player_tank.Reset(5, 14, UP);
 		InitializeMap(++game_level);
+		enemy_rest = game_level*5;
 		if(game_level == GAME_LEVEL_ALL) game_level = 0;
 		enemy_num_now =0;
 		come_time = 1;
-		enemy_rest = game_level*5;
 		game_state = GS_RUNNING;
 		break;
 	case GS_RUNNING:
@@ -404,6 +417,7 @@ void InitializeProgram()
 //加载某一关地图
 void InitializeMap(short level)
 {
+	int a=level;
 	TCHAR mapName[30];
 	wsprintf(mapName,_T(".\\res\\map\\L%d.map"), level);
 	ifstream in;

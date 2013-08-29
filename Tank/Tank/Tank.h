@@ -56,7 +56,7 @@ int enemy_num_now =0;
 
 const int COME_TIME_INTERVAL = 150;
 int come_time = 1;
-const int ENEMY_MAX_MOMENT=4;
+const int ENEMY_MAX_MOMENT=5;
 const int ENEMY_MAX =20;
 int enemy_rest = ENEMY_MAX;
 
