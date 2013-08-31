@@ -1,3 +1,21 @@
+ï»¿/*
+#	Copyright Â© 2013 Shaw 499012219@qq.com
+#   This file is part of Tank.
+
+#    Tank is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    Tank is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "stdafx.h"
 #include "Bullet.h"
 #include <list>
@@ -7,7 +25,7 @@ using namespace std;
 Bullet::Bullet(int _real_x, int _real_y, short _direction,  short _speed, short _type)
 	:MoveableBlock(_real_x/BLOCK_WIDTH, _real_y/BLOCK_WIDTH, _type, _speed, _direction)
 {
-	real_x = _real_x;//·ÅÕâÀï¶¨ÒåÒÔÃâºÍBlockÀïµÄÊı¾İ³åÍ»
+	real_x = _real_x;//æ”¾è¿™é‡Œå®šä¹‰ä»¥å…å’ŒBlocké‡Œçš„æ•°æ®å†²çª
 	real_y = _real_y;
 	blockImage.Load(_T(".\\res\\image\\bullet.png"));
 	TransparentPNG(&blockImage);
@@ -51,7 +69,7 @@ void Bullet::Draw(HDC &hdc)
 
 bool Bullet::hitMap()
 {
-		//×²µØÍ¼
+		//æ’åœ°å›¾
 		extern MapBlock* map[GAME_WINDOW_BLOCK][GAME_WINDOW_BLOCK];
 		short des_x1,des_y1,des_x2,des_y2;
 		switch (direction)

@@ -1,3 +1,21 @@
+ï»¿/*
+#	Copyright Â© 2013 Shaw 499012219@qq.com
+#   This file is part of Tank.
+
+#    Tank is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    Tank is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "stdafx.h"
 #include "GTank.h"
 #include <list>
@@ -155,12 +173,12 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 		{
 			int b_x = bullet.real_x + Bullet::BULLET_WIDTH/2;
 			int b_y = bullet.real_y + Bullet::BULLET_WIDTH/2;
-			//Èç¹ûÊÇÍæ¼ÒÌ¹¿ËµÄ×Óµ¯£¬ÄÇÃ´¼ì²éÊÇ·ñ´òµ½µĞÈË
+			//å¦‚æœæ˜¯ç©å®¶å¦å…‹çš„å­å¼¹ï¼Œé‚£ä¹ˆæ£€æŸ¥æ˜¯å¦æ‰“åˆ°æ•Œäºº
 			if(type == 11)
 			{
-				//player_bulletÊÇ±¾Ì¹¿ËµÄ×Óµ¯
-				//player_tank ÊÇÍæ¼ÒµÄÌ¹¿Ë
-				extern list<GTank*> enemy_tank; //µĞÈËÌ¹¿Ë
+				//player_bulletæ˜¯æœ¬å¦å…‹çš„å­å¼¹
+				//player_tank æ˜¯ç©å®¶çš„å¦å…‹
+				extern list<GTank*> enemy_tank; //æ•Œäººå¦å…‹
 				extern int enemy_num_now;
 				bool enemydown = false;
 				for(list<GTank*>::iterator iter_etank = enemy_tank.begin(); iter_etank!=enemy_tank.end() ; )
@@ -169,7 +187,7 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 					int t_x = etank.real_x + GTank::TANK_BLOCK_WIDTH/2;
 					int t_y = etank.real_y + GTank::TANK_BLOCK_WIDTH/2;
 					
-					//ÔİÊ±Ã»ÓĞ×Óµ¯´ò×Óµ¯µÄ
+					//æš‚æ—¶æ²¡æœ‰å­å¼¹æ‰“å­å¼¹çš„
 					
 					if (abs(b_x - t_x) < GTank::BLOCK_WIDTH/2 && abs(b_y - t_y) < GTank::BLOCK_WIDTH/2)
 					{
@@ -196,7 +214,7 @@ void GTank::DrawAndDealBullet(HDC &hDC)
 				bullet.Move();
 				if(!enemydown) (*(iter_bullet++))->Draw(hDC);
 			}
-			else //Èç¹ûÊÇµĞÈËµÄ×Óµ¯£¬ÄÇÃ´¼ì²éÊÇ·ñ´òµ½Íæ¼Ò
+			else //å¦‚æœæ˜¯æ•Œäººçš„å­å¼¹ï¼Œé‚£ä¹ˆæ£€æŸ¥æ˜¯å¦æ‰“åˆ°ç©å®¶
 			{
 				extern GTank player_tank;
 				extern bool player_death;

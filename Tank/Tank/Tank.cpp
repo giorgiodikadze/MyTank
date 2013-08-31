@@ -1,4 +1,22 @@
-// Tank.cpp : ¶¨ÒåÓ¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+ï»¿/*
+#	Copyright Â© 2013 Shaw 499012219@qq.com
+#   This file is part of Tank.
+
+#    Tank is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    Tank is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// Tank.cpp : å®šä¹‰åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 
 #include "stdafx.h"
@@ -8,12 +26,12 @@ using namespace std;
 
 #define MAX_LOADSTRING 100
 
-// È«¾Ö±äÁ¿:
-HINSTANCE hInst;								// µ±Ç°ÊµÀı
-TCHAR szTitle[MAX_LOADSTRING];					// ±êÌâÀ¸ÎÄ±¾
-TCHAR szWindowClass[MAX_LOADSTRING];			// Ö÷´°¿ÚÀàÃû
+// å…¨å±€å˜é‡:
+HINSTANCE hInst;								// å½“å‰å®ä¾‹
+TCHAR szTitle[MAX_LOADSTRING];					// æ ‡é¢˜æ æ–‡æœ¬
+TCHAR szWindowClass[MAX_LOADSTRING];			// ä¸»çª—å£ç±»å
 
-// ´Ë´úÂëÄ£¿éÖĞ°üº¬µÄº¯ÊıµÄÇ°ÏòÉùÃ÷:
+// æ­¤ä»£ç æ¨¡å—ä¸­åŒ…å«çš„å‡½æ•°çš„å‰å‘å£°æ˜:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -28,7 +46,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-	//¼ì²éÄÚ´æĞ¹Â¶µÄ´úÂë
+	//æ£€æŸ¥å†…å­˜æ³„éœ²çš„ä»£ç 
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
 
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -37,12 +55,12 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccelTable;
 
-	// ³õÊ¼»¯È«¾Ö×Ö·û´®
+	// åˆå§‹åŒ–å…¨å±€å­—ç¬¦ä¸²
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_TANK, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-	// Ö´ĞĞÓ¦ÓÃ³ÌĞò³õÊ¼»¯:
+	// æ‰§è¡Œåº”ç”¨ç¨‹åºåˆå§‹åŒ–:
 	if (!InitInstance (hInstance, nCmdShow))
 	{
 		return FALSE;
@@ -50,7 +68,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TANK));
 
-	// Ö÷ÏûÏ¢Ñ­»·:
+	// ä¸»æ¶ˆæ¯å¾ªç¯:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
@@ -66,9 +84,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 
 //
-//  º¯Êı: MyRegisterClass()
+//  å‡½æ•°: MyRegisterClass()
 //
-//  Ä¿µÄ: ×¢²á´°¿ÚÀà¡£
+//  ç›®çš„: æ³¨å†Œçª—å£ç±»ã€‚
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
@@ -92,22 +110,22 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 //
-//   º¯Êı: InitInstance(HINSTANCE, int)
+//   å‡½æ•°: InitInstance(HINSTANCE, int)
 //
-//   Ä¿µÄ: ±£´æÊµÀı¾ä±ú²¢´´½¨Ö÷´°¿Ú
+//   ç›®çš„: ä¿å­˜å®ä¾‹å¥æŸ„å¹¶åˆ›å»ºä¸»çª—å£
 //
-//   ×¢ÊÍ:
+//   æ³¨é‡Š:
 //
-//        ÔÚ´Ëº¯ÊıÖĞ£¬ÎÒÃÇÔÚÈ«¾Ö±äÁ¿ÖĞ±£´æÊµÀı¾ä±ú²¢
-//        ´´½¨ºÍÏÔÊ¾Ö÷³ÌĞò´°¿Ú¡£
+//        åœ¨æ­¤å‡½æ•°ä¸­ï¼Œæˆ‘ä»¬åœ¨å…¨å±€å˜é‡ä¸­ä¿å­˜å®ä¾‹å¥æŸ„å¹¶
+//        åˆ›å»ºå’Œæ˜¾ç¤ºä¸»ç¨‹åºçª—å£ã€‚
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    HWND hWnd;
 
-   hInst = hInstance; // ½«ÊµÀı¾ä±ú´æ´¢ÔÚÈ«¾Ö±äÁ¿ÖĞ
+   hInst = hInstance; // å°†å®ä¾‹å¥æŸ„å­˜å‚¨åœ¨å…¨å±€å˜é‡ä¸­
 
-   //»ñÈ¡ÆÁÄ»¿íºÍ¸ß
+   //è·å–å±å¹•å®½å’Œé«˜
 	int device_width = GetSystemMetrics(SM_CXSCREEN);
 	int	device_height =	GetSystemMetrics(SM_CYSCREEN);
 	int window_width = GAME_BLOCK_WIDTH * GAME_WINDOW_BLOCK+16;
@@ -125,7 +143,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
    
-	//»ñÈ¡DC==================================
+	//è·å–DC==================================
 	//screen = GetDC(NULL);
 	//cachehDC = CreateCompatibleDC(screen);
 	//HBITMAP hBitmap = CreateCompatibleBitmap(screen,clientRect.Width(),clientRect.Height());
@@ -136,13 +154,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 
 //
-//  º¯Êı: WndProc(HWND, UINT, WPARAM, LPARAM)
+//  å‡½æ•°: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
-//  Ä¿µÄ: ´¦ÀíÖ÷´°¿ÚµÄÏûÏ¢¡£
+//  ç›®çš„: å¤„ç†ä¸»çª—å£çš„æ¶ˆæ¯ã€‚
 //
-//  WM_COMMAND	- ´¦ÀíÓ¦ÓÃ³ÌĞò²Ëµ¥
-//  WM_PAINT	- »æÖÆÖ÷´°¿Ú
-//  WM_DESTROY	- ·¢ËÍÍË³öÏûÏ¢²¢·µ»Ø
+//  WM_COMMAND	- å¤„ç†åº”ç”¨ç¨‹åºèœå•
+//  WM_PAINT	- ç»˜åˆ¶ä¸»çª—å£
+//  WM_DESTROY	- å‘é€é€€å‡ºæ¶ˆæ¯å¹¶è¿”å›
 //
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -150,11 +168,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
-	//ÔÚÕâÀï¸ÉÒ»Ğ©ÊÂÇé========================
+	//åœ¨è¿™é‡Œå¹²ä¸€äº›äº‹æƒ…========================
 	hWindow = hWnd;
 	srand((unsigned)time(NULL));
 
-	//Êó±êµ¥»÷ÊÂ¼ş´ó¼¯ºÏ
+	//é¼ æ ‡å•å‡»äº‹ä»¶å¤§é›†åˆ
 	switch (message)
 	{
 	case WM_LBUTTONDOWN:
@@ -216,8 +234,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		break;
-	//´°¿ÚÊÇ·ñ¼¤»î
-	case WM_ACTIVATE://²âÊÔÊ±²»¶ÏÑ­»·ÊÇÒòÎªÓÃµÄ¶Ô»°¿ò²âÊÔ£¬¶Ô»°¿òÄÜÈÃ´°¿ÚÊ§È¥½¹µã£¬¶Ô»°¿òÏûÊ§ºó´°¿ÚÓÖ»áÊÕµ½WM_ACTIVATE
+	//çª—å£æ˜¯å¦æ¿€æ´»
+	case WM_ACTIVATE://æµ‹è¯•æ—¶ä¸æ–­å¾ªç¯æ˜¯å› ä¸ºç”¨çš„å¯¹è¯æ¡†æµ‹è¯•ï¼Œå¯¹è¯æ¡†èƒ½è®©çª—å£å¤±å»ç„¦ç‚¹ï¼Œå¯¹è¯æ¡†æ¶ˆå¤±åçª—å£åˆä¼šæ”¶åˆ°WM_ACTIVATE
 		if(wParam!=WA_INACTIVE)
 		{
 			SetTimer(hWnd,TIMER_ID,TIMER_INTERVAL,TimerProc);
@@ -225,7 +243,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 			KillTimer(hWnd,TIMER_ID);
 		break;
-	//´°¿Ú×îĞ¡»¯ºÍ»¹Ô­
+	//çª—å£æœ€å°åŒ–å’Œè¿˜åŸ
 	case WM_SIZE:
 		if(wParam==SIZE_RESTORED)
 			SetTimer(hWnd,TIMER_ID,TIMER_INTERVAL,TimerProc);
@@ -252,7 +270,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-// ¡°¹ØÓÚ¡±¿òµÄÏûÏ¢´¦Àí³ÌĞò¡£
+// â€œå…³äºâ€æ¡†çš„æ¶ˆæ¯å¤„ç†ç¨‹åºã€‚
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -333,18 +351,18 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 		break;
 	case GS_RUNNING:
 		//=====================================
-		//game_state = GS_WIN;//²âÊÔ´úÂë,Ö±½Ó¹ı¹Ø
+		//game_state = GS_WIN;//æµ‹è¯•ä»£ç ,ç›´æ¥è¿‡å…³
 		//=====================================
 		if(player_death==false) Keydown();
 
 		DrawGame();
 		
-		//Íæ¼ÒËÀÍö
+		//ç©å®¶æ­»äº¡
 		if(player_death==true)
 		{
 			if(--player_life>=0)
 			{
-				//Íæ¼Ò¸´»î
+				//ç©å®¶å¤æ´»
 				player_death=false;
 				player_tank.Reset(5, 14, UP);
 			}
@@ -391,7 +409,7 @@ void CALLBACK TimerProc(HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 	}
 }
 
-//½øÈëÇ°µÄ×¼±¸
+//è¿›å…¥å‰çš„å‡†å¤‡
 void Prepare()
 {
 	GetClientRect(hWindow,&clientRect);
@@ -404,7 +422,7 @@ void Prepare()
 	DeleteObject(myFont);
 }
 
-//³õÊ¼»¯³ÌĞò£¬ÓÎÏ·¿ªÊ¼
+//åˆå§‹åŒ–ç¨‹åºï¼Œæ¸¸æˆå¼€å§‹
 void InitializeProgram()
 {
 	score = 0;
@@ -414,7 +432,7 @@ void InitializeProgram()
 	game_state = GS_LOADING;
 }
 
-//¼ÓÔØÄ³Ò»¹ØµØÍ¼
+//åŠ è½½æŸä¸€å…³åœ°å›¾
 void InitializeMap(short level)
 {
 	int a=level;
@@ -422,7 +440,7 @@ void InitializeMap(short level)
 	wsprintf(mapName,_T(".\\res\\map\\L%d.map"), level);
 	ifstream in;
 	in.open(mapName);
-	for(short y=0, type=0;y<GAME_WINDOW_BLOCK;y++)//¸ù¾İ×ø±ê£¬yÓ¦ÔÚÑ­»·Íâ²ã
+	for(short y=0, type=0;y<GAME_WINDOW_BLOCK;y++)//æ ¹æ®åæ ‡ï¼Œyåº”åœ¨å¾ªç¯å¤–å±‚
 	{
 		for(short x=0;x<GAME_WINDOW_BLOCK;x++)
 		{
@@ -487,9 +505,9 @@ void DrawMapTree()
 
 void Print()
 {
-	HDC hdc = GetDC(hWindow); //hWindowÊÇÎÒ¶¨ÒåµÄ¿Í»§ÇøµÄ¾ä±ú
+	HDC hdc = GetDC(hWindow); //hWindowæ˜¯æˆ‘å®šä¹‰çš„å®¢æˆ·åŒºçš„å¥æŸ„
 	SetTextColor(cachehDC, RGB(255,0,0)) ; 
-	SetBkMode(cachehDC, TRANSPARENT); //Í¸Ã÷±³¾° 
+	SetBkMode(cachehDC, TRANSPARENT); //é€æ˜èƒŒæ™¯ 
 	BitBlt(hdc,0,0,clientRect.Width(),clientRect.Height(),cachehDC,0,0,SRCCOPY);
 	ReleaseDC(hWindow,hdc);
 }
@@ -526,7 +544,7 @@ void EnemyCome()
 	{
 		come_time=COME_TIME_INTERVAL;
 	}
-	//ÉÙÓÚÆÁÄ»×î´óµĞÈËÊı²¢ÇÒÊ£ÓàµĞÈËÊı´óÓÚÁãÌí¼ÓµĞÈË
+	//å°‘äºå±å¹•æœ€å¤§æ•Œäººæ•°å¹¶ä¸”å‰©ä½™æ•Œäººæ•°å¤§äºé›¶æ·»åŠ æ•Œäºº
 	if(come_time>0)		
 	{
 		come_time--;
@@ -566,7 +584,7 @@ void EnemyBehave()
 	}
 }
 
-void DrawEnemy()//Ã»ÓĞRTE
+void DrawEnemy()//æ²¡æœ‰RTE
 {
 	list<GTank*>::iterator iter_tank;
 	for(iter_tank=enemy_tank.begin(); iter_tank!=enemy_tank.end(); iter_tank++)
